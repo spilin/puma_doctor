@@ -48,4 +48,5 @@ namespace :puma_doctor do
     end
   end
 
+  after 'deploy:finished', 'puma_doctor:restart'
 end
