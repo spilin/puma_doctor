@@ -1,8 +1,8 @@
 namespace :load do
   task :defaults do
     set :puma_doctor_pid, -> { File.join(shared_path, 'tmp', 'pids', 'puma_doctor.pid') }
-    set :puma_doctor_frequency, 10 #seconds
-    set :puma_doctor_memory_threshold, 1000 #mb
+    set :puma_doctor_frequency, 30 #seconds
+    set :puma_doctor_memory_threshold, 4000 #mb
     set :puma_doctor_daemon_file, -> { File.join(shared_path, 'puma_doctor_daemon.rb') }
     set :puma_doctor_log_file, -> { File.join(shared_path, 'log', 'puma_doctor.log') }
     set :puma_pid, -> { File.join(shared_path, 'tmp', 'pids', 'puma.pid') }

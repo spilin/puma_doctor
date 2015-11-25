@@ -4,9 +4,7 @@ module PumaDoctor
       @memory_threshold = options[:memory_threshold]
       @puma_pid_file = options[:puma_pid_file]
       @puma_pid = options[:puma_pid] && options[:puma_pid].to_i
-      @log_file = options[:log_file]
-      # @conseq_kills = 0
-      # @conseq_skips = 0
+      @logger = options[:logger]
     end
 
     def examine
@@ -16,10 +14,7 @@ module PumaDoctor
       used_memory = workers.inject(0) {|memo, v| memo += v.last } + GetProcessMem.new(@master_pid).mb
       logger.info "[Puma Doctor] Total memory used: #{used_memory} mb. Workers online: #{workers.size}"
       if used_memory > @memory_threshold
-        kill_worker(workers)
-        # decrease_workers_amount
-      else
-        refresh_stats
+        kill_largest_worker(workers)
       end
     end
 
@@ -48,20 +43,13 @@ module PumaDoctor
     def get_workers(puma_pid)
       `pgrep -P #{puma_pid} -d ','`.split(',').compact.map do |pid|
         [pid.to_i, GetProcessMem.new(pid).mb]
-      end.sort {|a, b| a[1] <=> b[1]}
+      end
     end
 
-    def kill_worker(workers)
-      # @conseq_skips = 0
-      # @conseq_kills += 1
-      pid = workers.last.first
+    def kill_largest_worker(workers)
+      pid, memory_used = workers.max_by {|a| a[1]}
       Process.kill('TERM', pid)
-      logger.info "[Puma Doctor] Doctor killed worker(#{pid}).It was using #{workers.last.last} mb. Workers online: #{workers.size}"
-    end
-
-    def refresh_stats
-      # @conseq_kills = 0
-      # @conseq_skips += 1
+      logger.info "[Puma Doctor] Doctor killed worker(#{pid}).It was using #{memory_used} mb. Workers online: #{workers.size - 1}"
     end
 
     def process_is_running?(pid)
@@ -72,22 +60,8 @@ module PumaDoctor
     end
 
     def logger
-      @logger ||= begin
-        logger = Logger.new(@log_file)
-        logger.level = Logger::INFO
-        logger
-      end
+      @logger
     end
-
-    # We are not using this
-    # def decrease_workers_amount
-    #   if decrease_workers_threshold && (@conseq_kills > decrease_workers_threshold)
-    #     if workers.size > [self.min_workers, 0].compact.max
-    #       Process.kill('TTOU', master_pid)
-    #       logger.info "[Puma Doctor] Decreased amount of workers to #{workers.size - 1} after #{@conseq_kills} consecutive kills."
-    #     end
-    #   end
-    # end
 
   end
 end
