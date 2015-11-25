@@ -13,7 +13,7 @@ module PumaDoctor
       @master_pid = get_master_pid(@master_pid)
       return if @master_pid.nil?
       workers = get_workers(@master_pid) # worker pids with size, last one is the largest one
-      used_memory = workers.sum(&:last) + GetProcessMem.new(@master_pid).mb
+      used_memory = workers.inject(0) {|memo, v| memo += v.last } + GetProcessMem.new(@master_pid).mb
       logger.info "[Puma Doctor] Total memory used: #{used_memory} mb. Workers online: #{workers.size}"
       if used_memory > @memory_threshold
         kill_worker(workers.last.first)
