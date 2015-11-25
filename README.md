@@ -4,6 +4,20 @@ Inspired by ( https://github.com/schneems/puma_worker_killer ). Idea is to run
 separate process as a daemon to measure puma memory and restart worker when memory
 threshold reached.
 
+## Installation
+
+Add this line to your application's Gemfile:
+
+    gem 'puma_doctor'
+
+And then execute:
+
+    $ bundle
+
+Or install it yourself as:
+
+    $ gem install puma_doctor
+
 ## Usage
 
 ### Running from ruby code.
@@ -64,21 +78,6 @@ Available options with defaults:
 ### Logging
 
 You can always see what `puma_doctor` is doing by reading logs.
-
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-    gem 'puma_doctor'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install puma_doctor
 
 ## TODO
 
