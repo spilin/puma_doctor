@@ -1,7 +1,7 @@
 require 'puma_doctor'
 require 'daemons'
 
-Daemons.run_proc('puma_doctor', { dir: '<%= fetch(:puma_doctor_pid) %>' }) do
+Daemons.run_proc('puma_doctor', { dir: '<%= File.dirname(fetch(:puma_doctor_pid)) %>' }) do
   options = {
       frequency: <%= fetch(:puma_doctor_frequency) %>,
       memory_threshold: <%= fetch(:puma_doctor_memory_threshold) %>,

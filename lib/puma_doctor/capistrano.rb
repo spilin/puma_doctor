@@ -10,7 +10,6 @@ namespace :load do
 end
 
 namespace :puma_doctor do
-
   desc 'Config daemon. Generate and send puma_doctor.rb'
   task :config do
     on roles(:app), in: :sequence, wait: 5 do
@@ -22,55 +21,31 @@ namespace :puma_doctor do
     end
   end
 
-  desc 'Start watcher'
+  desc 'Start daemon'
   task :start do
     on roles(:app), in: :sequence, wait: 5 do
       within release_path do
-        # puts fetch(:puma_pid)
-        execute :bundle, :exec, :puma_doctor, "start -p #{fetch(:puma_pid)} -f #{fetch(:frequency)}"
+        execute :bundle, :exec, :ruby, fetch(:puma_doctor_daemon_file), 'start'
       end
     end
   end
 
-  desc 'Stop watcher'
+  desc 'Stop daemon'
   task :stop do
     on roles(:app), in: :sequence, wait: 5 do
       within release_path do
-        # execute :bundle, :exec, :ruby, 'watcher.rb', 'stop'
+        execute :bundle, :exec, :ruby, fetch(:puma_doctor_daemon_file), 'stop'
       end
     end
   end
 
-  desc 'Restart application'
+  desc 'Restart daemon'
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
       within release_path do
-        # execute :bundle, :exec, :ruby, 'watcher.rb', 'restart'
+        execute :bundle, :exec, :ruby, fetch(:puma_doctor_daemon_file), 'restart'
       end
     end
   end
-
-  def template_puma(from, to, role)
-  [
-      "lib/capistrano/templates/#{from}-#{role.hostname}-#{fetch(:stage)}.rb",
-      "lib/capistrano/templates/#{from}-#{role.hostname}.rb",
-      "lib/capistrano/templates/#{from}-#{fetch(:stage)}.rb",
-      "lib/capistrano/templates/#{from}.rb.erb",
-      "lib/capistrano/templates/#{from}.rb",
-      "lib/capistrano/templates/#{from}.erb",
-      "config/deploy/templates/#{from}.rb.erb",
-      "config/deploy/templates/#{from}.rb",
-      "config/deploy/templates/#{from}.erb",
-      File.expand_path("../../templates/#{from}.rb.erb", __FILE__),
-      File.expand_path("../../templates/#{from}.erb", __FILE__)
-  ].each do |path|
-    if File.file?(path)
-      erb = File.read(path)
-      upload! StringIO.new(ERB.new(erb).result(binding)), to
-      break
-    end
-  end
-end
-
 
 end

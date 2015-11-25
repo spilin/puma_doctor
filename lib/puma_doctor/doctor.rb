@@ -25,7 +25,7 @@ module PumaDoctor
 
     private
 
-    def master_pid(current_puma_pid)
+    def get_master_pid(current_puma_pid)
       if current_puma_pid && process_is_running?(current_puma_pid)
         current_puma_pid
       elsif current_puma_pid && (@puma_pid_file.nil? || !File.exists?(@puma_pid_file))
