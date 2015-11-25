@@ -8,13 +8,13 @@ Gem::Specification.new do |spec|
   spec.version       = PumaDoctor::VERSION
   spec.authors       = ["Alex Krasynskyi"]
   spec.email         = ["lyoshakr@gmail.com"]
-  spec.summary       = %q{Process to keep your puma workers healthy}
-  spec.description   = %q{Kills largest workers.}
-  spec.homepage      = ""
+  spec.summary       = %q{Process to keep your puma workers healthy.}
+  spec.description   = %q{Kills largest worker. Runs seperate daemon, managed with sidekiq.}
+  spec.homepage      = "https://github.com/spilin/puma_doctor"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
-  spec.executables   = ['puma_doctor']
+  spec.executables   = []
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 

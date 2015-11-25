@@ -25,6 +25,7 @@ namespace :puma_doctor do
   task :start do
     on roles(:app), in: :sequence, wait: 5 do
       within release_path do
+        invoke 'puma_doctor:check'
         execute :bundle, :exec, :ruby, fetch(:puma_doctor_daemon_file), 'start'
       end
     end
@@ -34,6 +35,7 @@ namespace :puma_doctor do
   task :stop do
     on roles(:app), in: :sequence, wait: 5 do
       within release_path do
+        invoke 'puma_doctor:check'
         execute :bundle, :exec, :ruby, fetch(:puma_doctor_daemon_file), 'stop'
       end
     end
@@ -43,8 +45,16 @@ namespace :puma_doctor do
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
       within release_path do
+        invoke 'puma_doctor:check'
         execute :bundle, :exec, :ruby, fetch(:puma_doctor_daemon_file), 'restart'
       end
+    end
+  end
+
+  desc 'Check if config file exixts on server. If not - create and upload one.'
+  task :check do
+    on roles(:app), in: :sequence, wait: 5 do
+      invoke 'puma_doctor:config' unless test "[ -f #{fetch(:puma_doctor_daemon_file)} ]"
     end
   end
 
