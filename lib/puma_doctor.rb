@@ -17,6 +17,7 @@ module PumaDoctor
 
   def start(options = {})
     @logger = ::PumaDoctor::Logger.new(log_file: options[:log_file] || self.log_file, log_level: options[:log_level])
+    @logger.log_start
     doctor = Doctor.new(default_options.merge(options).merge(logger: @logger))
     loop do
       doctor.examine
