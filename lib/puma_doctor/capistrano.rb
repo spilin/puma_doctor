@@ -13,11 +13,7 @@ namespace :puma_doctor do
   desc 'Config daemon. Generate and send puma_doctor.rb'
   task :config do
     on roles(:app), in: :sequence, wait: 5 do
-      path = File.expand_path("../daemon_template.rb.erb", __FILE__)
-      if File.file?(path)
-        erb = File.read(path)
-        upload! StringIO.new(ERB.new(erb).result(binding)), fetch(:puma_doctor_daemon_file)
-      end
+      config
     end
   end
 
@@ -25,7 +21,7 @@ namespace :puma_doctor do
   task :start do
     on roles(:app), in: :sequence, wait: 5 do
       within release_path do
-        invoke 'puma_doctor:check'
+        config
         execute :bundle, :exec, :ruby, fetch(:puma_doctor_daemon_file), 'start'
       end
     end
@@ -35,7 +31,7 @@ namespace :puma_doctor do
   task :stop do
     on roles(:app), in: :sequence, wait: 5 do
       within release_path do
-        invoke 'puma_doctor:check'
+        config
         execute :bundle, :exec, :ruby, fetch(:puma_doctor_daemon_file), 'stop'
       end
     end
@@ -45,7 +41,7 @@ namespace :puma_doctor do
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
       within release_path do
-        invoke 'puma_doctor:check'
+        config
         execute :bundle, :exec, :ruby, fetch(:puma_doctor_daemon_file), 'restart'
       end
     end
@@ -54,9 +50,17 @@ namespace :puma_doctor do
   desc 'Check if config file exixts on server. If not - create and upload one.'
   task :check do
     on roles(:app), in: :sequence, wait: 5 do
-      invoke 'puma_doctor:config' unless test "[ -f #{fetch(:puma_doctor_daemon_file)} ]"
+      config unless test "[ -f #{fetch(:puma_doctor_daemon_file)} ]"
     end
   end
 
   after 'deploy:finished', 'puma_doctor:restart'
+
+  def config
+    path = File.expand_path("../daemon_template.rb.erb", __FILE__)
+    if File.file?(path)
+      erb = File.read(path)
+      upload! StringIO.new(ERB.new(erb).result(binding)), fetch(:puma_doctor_daemon_file)
+    end
+  end
 end
